@@ -1,4 +1,6 @@
 import React, { useState } from 'react'
+
+import Avatar from '@mui/material/Avatar'
 import Paper from '@mui/material/Paper'
 import Table from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'
@@ -7,13 +9,18 @@ import TableContainer from '@mui/material/TableContainer'
 import TableHead from '@mui/material/TableHead'
 import TablePagination from '@mui/material/TablePagination'
 import TableRow from '@mui/material/TableRow'
-import { Movie } from '@/utils/types'
-import { MovieData } from '@/data/movies'
-import Avatar from '@mui/material/Avatar'
+
 import StarIcon from '@mui/icons-material/Star'
 import WhatshotIcon from '@mui/icons-material/Whatshot'
-import { formatDuration } from '@/utils/helpers'
-const rows: Movie[] = MovieData
+
+import PlatformIcon from '@components/platform_icon'
+import { PLATFORMS } from '@utils/constants'
+import { formatDuration } from '@utils/helpers'
+import { Movie } from '@utils/types'
+type Props = {
+	rows: Movie[]
+}
+import styles from '@styles/WatchlistTable.module.css'
 
 interface Column {
 	id:
@@ -23,7 +30,7 @@ interface Column {
 		| 'minutes'
 		| 'platforms'
 		| 'score'
-		| 'vote_count'
+		| 'popularity'
 		| 'genres'
 	label: string
 	minWidth?: number
@@ -56,9 +63,10 @@ const columns: readonly Column[] = [
 		minWidth: 170,
 	},
 	{
-		id: 'vote_count',
-		label: 'Total Votes',
+		id: 'popularity',
+		label: 'Popularity',
 		align: 'right',
+		minWidth: 100,
 	},
 	{
 		id: 'genres',
@@ -68,7 +76,7 @@ const columns: readonly Column[] = [
 	},
 ]
 
-const WatchlistTable = () => {
+const WatchlistTable = ({ rows }: Props) => {
 	const [page, setPage] = useState(0)
 	const [rowsPerPage, setRowsPerPage] = useState(10)
 
@@ -115,7 +123,7 @@ const WatchlistTable = () => {
 											/>
 										</TableCell>
 										<TableCell align='left'>
-											<div style={{ display: 'flex', flexDirection: 'column' }}>
+											<div className={styles.movieName}>
 												<strong>{row.originalName}</strong>
 												<em>{row.name}</em>
 											</div>
@@ -125,38 +133,35 @@ const WatchlistTable = () => {
 											{formatDuration(row.minutes)}
 										</TableCell>
 
-										<TableCell>{row.platforms.join(', ')}</TableCell>
 										<TableCell>
-											<div
-												style={{
-													display: 'flex',
-													alignItems: 'center',
-												}}
-											>
-												<StarIcon />
-												<div>
-													<span style={{ fontWeight: 'bold' }}>
-														{row.rating.toFixed(1)}
-													</span>
-													/10
-												</div>
-											</div>
-											<div
-												style={{
-													display: 'flex',
-													alignItems: 'center',
-												}}
-											>
-												<WhatshotIcon />
-												<div>
-													<span style={{ fontWeight: 'bold' }}>
-														{row.popularity.toFixed(2)}
-													</span>
-													/100
-												</div>
+											<div className={styles.platforms}>
+												{row.platforms.map(
+													(platform) =>
+														PLATFORMS[platform] && (
+															<PlatformIcon
+																key={platform}
+																{...PLATFORMS[platform]}
+															/>
+														)
+												)}
 											</div>
 										</TableCell>
-										<TableCell align='right'>{row.vote_count}</TableCell>
+										<TableCell>
+											<div className={styles.rating}>
+												<StarIcon />
+												<span>{row.rating.toFixed(1)}</span>
+											</div>
+										</TableCell>
+										<TableCell align='right'>
+											<div className={styles.popularity}>
+												<WhatshotIcon />
+												<span>{row.popularity.toFixed(2)}</span>
+											</div>
+
+											<div className={styles.voteCount}>
+												{row.vote_count} votes
+											</div>
+										</TableCell>
 										<TableCell align='right'>{row.genres.join(', ')}</TableCell>
 									</TableRow>
 								)

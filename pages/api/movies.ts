@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { ErrorResponse, Movie } from '@/utils/types';
+import { ErrorResponse, Movie } from '@utils/types';
 import {MovieData} from '@/data/movies';
 
 type Data = Movie[] | ErrorResponse;

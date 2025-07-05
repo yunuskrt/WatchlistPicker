@@ -1,3 +1,7 @@
+export type ErrorResponse = {
+    error: string;
+};
+
 export type Movie = {
     id: number;
     name: string;
@@ -12,6 +16,8 @@ export type Movie = {
     image: string;
 };
 
-export type ErrorResponse = {
-    error: string;
-};
+export type Platform = {
+    id: string;
+    name: string;
+    logo: string;
+}

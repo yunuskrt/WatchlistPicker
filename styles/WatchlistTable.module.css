@@ -1,0 +1,26 @@
+.movieName{
+    display: flex;
+    flex-direction: column;
+}
+.platforms{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+.rating{
+    display: flex;
+    align-items: center;
+    color: #FFD700;
+    font-weight: bold;
+}
+.popularity{
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    color: #00BFFF;
+    font-weight: bold;
+}
+.voteCount{
+    font-size: 0.9em;
+    color: lightgray;
+}

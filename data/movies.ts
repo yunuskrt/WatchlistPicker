@@ -1,4 +1,6 @@
-export const MovieData = [
+import { Movie } from '@utils/types'
+
+export const MovieData: Movie[] = [
 	{
 		id: 911430,
 		name: 'F1',
