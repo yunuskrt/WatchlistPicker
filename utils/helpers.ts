@@ -1,3 +1,7 @@
+import * as XLSX from 'xlsx'
+import { saveAs } from 'file-saver'
+import { Movie } from '@utils/types'
+
 export const formatDuration = (minutes: number): string => {
     const h = Math.floor(minutes / 60)
     const m = minutes % 60
@@ -5,4 +9,34 @@ export const formatDuration = (minutes: number): string => {
     if (h > 0 && m > 0) return `${h}h ${m}min`
     if (h > 0) return `${h}h`
     return `${m}min`
+}
+
+export const downloadExcel = (movieData: Movie[]) => {
+	const flatData = movieData.map((movie) => ({
+		ID: movie.id,
+		Name: movie.name,
+		'Original Name': movie.originalName,
+		Year: movie.year,
+		Minutes: movie.minutes,
+		Rating: movie.rating,
+		Popularity: movie.popularity,
+		'Vote Count': movie.vote_count,
+		Genres: movie.genres.join(', '),
+		Platforms: movie.platforms.join(', '),
+		ImageURL: movie.image,
+	}))
+	const worksheet = XLSX.utils.json_to_sheet(flatData)
+	const workbook = XLSX.utils.book_new()
+	XLSX.utils.book_append_sheet(workbook, worksheet, 'Movies')
+
+	const excelBuffer = XLSX.write(workbook, {
+		bookType: 'xlsx',
+		type: 'array',
+	})
+
+	const blob = new Blob([excelBuffer], {
+		type: 'application/octet-stream',
+	})
+
+	saveAs(blob, 'movies.xlsx')
 }

@@ -3,6 +3,8 @@ import { MovieData } from '@/data/movies'
 import SearchAppBar from '@components/appbar'
 import WatchlistTable from '@components/watchlist_table'
 import { Filter, Movie } from '@utils/types'
+import WatchlistToolbar from '@components/watchlist_toolbar'
+import Box from '@mui/material/Box'
 
 const Home = () => {
 	const [tableData, setTableData] = useState<Movie[]>(MovieData)
@@ -60,12 +62,15 @@ const Home = () => {
 	}
 	return (
 		<>
-			<SearchAppBar
-				submitFilters={submitFilters}
-				removeFilters={removeFilters}
-				searchMovies={searchMovies}
-			/>
-			<WatchlistTable rows={tableData} />
+			<Box sx={{ gap: 2, display: 'flex', flexDirection: 'column' }}>
+				<SearchAppBar
+					submitFilters={submitFilters}
+					removeFilters={removeFilters}
+					searchMovies={searchMovies}
+				/>
+				<WatchlistToolbar movieData={tableData} />
+				<WatchlistTable rows={tableData} />
+			</Box>
 		</>
 	)
 }
