@@ -21,3 +21,12 @@ export type Platform = {
     name: string;
     logo: string;
 }
+
+export type Filter = {
+    year?: number[];
+    runtime?: number[];
+    platform?: string;
+    genre?: string;
+    rating?: number;
+    popularity?: number;
+}

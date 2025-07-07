@@ -29,7 +29,7 @@ interface Column {
 		| 'year'
 		| 'minutes'
 		| 'platforms'
-		| 'score'
+		| 'rating'
 		| 'popularity'
 		| 'genres'
 	label: string
@@ -58,8 +58,8 @@ const columns: readonly Column[] = [
 		minWidth: 200,
 	},
 	{
-		id: 'score',
-		label: 'Score',
+		id: 'rating',
+		label: 'Rating',
 		minWidth: 170,
 	},
 	{
