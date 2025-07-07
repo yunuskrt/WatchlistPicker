@@ -2,6 +2,11 @@
     display: flex;
     flex-direction: column;
 }
+.movieName > strong:hover{
+    font-weight: bold;
+    cursor: pointer;
+    text-decoration: underline;
+}
 .platforms{
     display: flex;
     flex-wrap: wrap;

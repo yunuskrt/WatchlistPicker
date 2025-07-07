@@ -21,6 +21,7 @@ import { Movie } from '@utils/types'
 
 type Props = {
 	rows: Movie[]
+	openMovieModal: (movie: Movie) => void
 }
 import styles from '@styles/WatchlistTable.module.css'
 
@@ -75,9 +76,9 @@ const columns: readonly Column[] = [
 	},
 ]
 
-const WatchlistTable = ({ rows }: Props) => {
+const WatchlistTable = ({ rows, openMovieModal }: Props) => {
 	const [page, setPage] = useState(0)
-	const [rowsPerPage, setRowsPerPage] = useState(10)
+	const [rowsPerPage, setRowsPerPage] = useState(-1)
 	const [orderBy, setOrderBy] = useState<keyof Movie | ''>('')
 	const [order, setOrder] = useState<'asc' | 'desc'>('asc')
 
@@ -143,7 +144,9 @@ const WatchlistTable = ({ rows }: Props) => {
 									</TableCell>
 									<TableCell align='left'>
 										<div className={styles.movieName}>
-											<strong>{row.originalName}</strong>
+											<strong onClick={() => openMovieModal(row)}>
+												{row.originalName}
+											</strong>
 											<em>{row.name}</em>
 										</div>
 									</TableCell>
@@ -189,7 +192,7 @@ const WatchlistTable = ({ rows }: Props) => {
 				</Table>
 			</TableContainer>
 			<TablePagination
-				rowsPerPageOptions={[5, 10, 25]}
+				rowsPerPageOptions={[{ label: 'All', value: -1 }, 5, 10, 25]}
 				component='div'
 				count={rows.length}
 				rowsPerPage={rowsPerPage}

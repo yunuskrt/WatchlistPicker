@@ -8,12 +8,18 @@ import { Movie } from '@utils/types'
 
 type Props = {
 	movieData: Movie[]
+	pickRandomMovie: () => void
 }
 
-const WatchlistToolbar = ({ movieData }: Props) => {
+const WatchlistToolbar = ({ movieData, pickRandomMovie }: Props) => {
 	return (
 		<ButtonGroup aria-label='Basic button group'>
-			<Button startIcon={<ShuffleIcon />} variant='outlined' color='success'>
+			<Button
+				startIcon={<ShuffleIcon />}
+				variant='outlined'
+				color='success'
+				onClick={pickRandomMovie}
+			>
 				Pick Random Movie
 			</Button>
 			<Button
