@@ -40,3 +40,27 @@ export const downloadExcel = (movieData: Movie[]) => {
 
 	saveAs(blob, 'movies.xlsx')
 }
+
+export const sortRows = (
+	rows: Movie[],
+	orderBy: keyof Movie,
+	order: 'asc' | 'desc'
+) => {
+	if (!orderBy) return rows
+	return [...rows].sort((a, b) => {
+		const aValue = Array.isArray(a[orderBy])
+			? a[orderBy].join(', ')
+			: a[orderBy]
+		const bValue = Array.isArray(b[orderBy])
+			? b[orderBy].join(', ')
+			: b[orderBy]
+
+		if (typeof aValue === 'number' && typeof bValue === 'number') {
+			return order === 'asc' ? aValue - bValue : bValue - aValue
+		} else {
+			return order === 'asc'
+				? String(aValue).localeCompare(String(bValue))
+				: String(bValue).localeCompare(String(aValue))
+		}
+	})
+}
