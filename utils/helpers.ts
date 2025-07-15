@@ -75,14 +75,14 @@ export const pickRandom = (movies: Movie[]): Movie | null => {
 }
 
 export const isStale = (lastUpdatedISO: string, now: Date): boolean => {
-	const STALE_MS = 2 * 60 * 1000;
-  	const diffMs = now.getTime() - new Date(lastUpdatedISO).getTime();
-  	return diffMs >= STALE_MS;
-	// const STALE_DAYS = 7
-	// const diffDays =
-	// 	(now.getTime() - new Date(lastUpdatedISO).getTime()) /
-	// 	(1000 * 60 * 60 * 24)
-	// return diffDays >= STALE_DAYS
+	// const STALE_MS = 2 * 60 * 1000;
+  	// const diffMs = now.getTime() - new Date(lastUpdatedISO).getTime();
+  	// return diffMs >= STALE_MS;
+	const STALE_DAYS = 7
+	const diffDays =
+		(now.getTime() - new Date(lastUpdatedISO).getTime()) /
+		(1000 * 60 * 60 * 24)
+	return diffDays >= STALE_DAYS
 }
 
 export const fetchAndCache = async(
@@ -90,7 +90,7 @@ export const fetchAndCache = async(
   	cache: WatchlistData,
   	now: Date
 ): Promise<Movie[]> => {
-	const result = await axios.get('api/v1/movies')
+	const result = await axios.get(`api/v1/movies/${username}`)
 	const movies: Movie[] = result.data
 
 	cache[username] = {

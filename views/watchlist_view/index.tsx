@@ -1,19 +1,22 @@
 import React, { useState } from 'react'
 import Box from '@mui/material/Box'
 import Modal from '@mui/material/Modal'
+import Typography from '@mui/material/Typography'
 import MovieCard from '@/components/movie_card'
 import SearchAppBar from '@components/appbar'
 import WatchlistTable from '@components/watchlist_table'
 import WatchlistToolbar from '@components/watchlist_toolbar'
 import { Filter, Movie } from '@utils/types'
 import { pickRandom } from '@utils/helpers'
+import HistoryIcon from '@mui/icons-material/History'
+import PersonIcon from '@mui/icons-material/Person'
 
 interface MovieModal {
 	open: boolean
 	movie: Movie | null
 }
-type Props = { movies: Movie[] }
-const WatchlistView = ({ movies }: Props) => {
+type Props = { movies: Movie[]; username: string; lastUpdated: string }
+const WatchlistView = ({ movies, username, lastUpdated }: Props) => {
 	const [tableData, setTableData] = useState<Movie[]>(movies)
 	const [movieModal, setMovieModal] = useState<MovieModal>({
 		open: false,
@@ -96,6 +99,32 @@ const WatchlistView = ({ movies }: Props) => {
 				movieData={tableData}
 				pickRandomMovie={pickRandomMovie}
 			/>
+			<Box>
+				<Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1 }}>
+					<PersonIcon />
+					<Typography variant='body2' color='text.secondary'>
+						<strong>{username}</strong> watchlist'i
+					</Typography>
+				</Box>
+
+				<Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1 }}>
+					<HistoryIcon />
+					<Typography variant='body2' color='text.secondary'>
+						Son Güncelleme Tarihi:{' '}
+						<strong>
+							{new Date(lastUpdated).toLocaleString('tr-TR', {
+								day: '2-digit',
+								month: 'long',
+								year: 'numeric',
+								hour: '2-digit',
+								minute: '2-digit',
+								hour12: false,
+								timeZone: 'Europe/Istanbul',
+							})}
+						</strong>
+					</Typography>
+				</Box>
+			</Box>
 			<WatchlistTable rows={tableData} openMovieModal={openMovieModal} />
 			<Modal
 				open={movieModal.open}

@@ -8,23 +8,22 @@ import { isStale, fetchAndCache } from '@utils/helpers'
 
 interface HomeProps {
 	movies: Movie[]
+	username: string
+	lastUpdated: string
 	loading: boolean
 	status: boolean
 }
 
 const Home = () => {
-	// const [movieData, setMovieData] = useState<Movie[]>([])
-	// const [loading, setLoading] = useState(false)
-	// const [status, setStatus] = useState(false)
-
 	const [homeData, setHomeData] = useState<HomeProps>({
 		movies: [],
+		username: '',
+		lastUpdated: '',
 		loading: false,
 		status: false,
 	})
 
 	const searchUserWatchlist = async (username: string) => {
-		// setLoading(true)
 		setHomeData({ ...homeData, loading: true })
 
 		const STORE_KEY = 'watchlistData'
@@ -33,25 +32,28 @@ const Home = () => {
 
 		const entry = cache[username]
 
-		if (entry && !isStale(entry.lastUpdated, now)) {
-			// setMovieData(entry.movies)
-			setHomeData({ ...homeData, movies: entry.movies })
-		} else {
-			const movies: Movie[] = await fetchAndCache(username, cache, now)
-			// setMovieData(movies)
-			setHomeData({ ...homeData, movies })
-		}
-		setHomeData({ ...homeData, loading: false, status: true })
-		// setStatus(true)
-		// setLoading(false)
+		let movies: Movie[] = []
+		if (entry && !isStale(entry.lastUpdated, now)) movies = entry.movies
+		else movies = await fetchAndCache(username, cache, now)
+
+		setHomeData({
+			movies,
+			username,
+			lastUpdated: now.toISOString(),
+			loading: false,
+			status: movies.length > 0,
+		})
 	}
 	return (
 		<>
 			{homeData.loading ? (
 				<LoadingView />
 			) : homeData.status ? (
-				// <WatchlistView movies={homeData.movies} />
-				<LoadingView />
+				<WatchlistView
+					movies={homeData.movies}
+					username={homeData.username}
+					lastUpdated={homeData.lastUpdated}
+				/>
 			) : (
 				<UsernameView submitUsername={searchUserWatchlist} />
 			)}

@@ -100,7 +100,7 @@ const WatchlistTable = ({ rows, openMovieModal }: Props) => {
 
 	return (
 		<Paper sx={{ width: '100%', overflow: 'hidden' }} elevation={3}>
-			<TableContainer sx={{ maxHeight: '90vh' }}>
+			<TableContainer sx={{ maxHeight: '80vh' }}>
 				<Table stickyHeader aria-label='sticky table'>
 					<TableHead>
 						<TableRow>
