@@ -108,42 +108,100 @@ export default async function handler(
 	req: NextApiRequest,
 	res: NextApiResponse<Data>
 ) {
-	if (req.method !== 'GET')
+	if (req.method !== 'GET') {
 		return res.status(405).json({ error: 'Method Not Allowed' })
-	else {
-		const username = req.query.username as string
-
-		if (!username)
-			return res.status(400).json({ error: 'Username is required' })
-
+	}
+	const username = req.query.username as string
+	if (!username) {
+		return res.status(400).json({ error: 'Username is required' })
+	}
+	try {
 		const watchlistMovieLinks = await getWatchlistMovieLinks(username)
 		if (!watchlistMovieLinks || watchlistMovieLinks.length === 0) {
-			console.log('No movie links found in the watchlist.')
 			return res
 				.status(404)
 				.json({ error: 'No movie links found in the watchlist.' })
 		}
-		const tmdbIds = []
+		// set headers for SSE
+		res.setHeader('Content-Type', 'text/event-stream; charset=utf-8')
+		res.setHeader('Cache-Control', 'no-cache, no-transform')
+		res.setHeader('Connection', 'keep-alive')
+		// ❶ turn off buffering Gzip compression
+		res.setHeader('Content-Encoding', 'identity') // ('none' da olur)
+		// ❷ turn off buffering
+		res.setHeader('X-Accel-Buffering', 'no')
+		res.flushHeaders()
+		// flag to check if client is still connected
+		let clientConnected = true
+		req.on('close', () => {
+			console.log('Client disconnected, stopping process.')
+			clientConnected = false
+		})
+
+		// first message with total movie count
+		const total = watchlistMovieLinks.length
+		res.write(
+			`data: ${JSON.stringify({
+				type: 'movie',
+				message: `${total} movies found.`,
+				progress: 0,
+			})}\n\n`
+		)
+
 		const watchlistData = []
-		let ind = 1
-		for (const link of watchlistMovieLinks) {
+		for (const [index, link] of watchlistMovieLinks.entries()) {
+			// check if client is still connected every iteration
+			if (!clientConnected) break
+			console.log(`${index + 1}/${total} - Processing link: ${link}`)
+
 			const tmdbId = await getTmdbIdFromLetterboxdUrl(
 				`${process.env.BASE_URL}${link}`
 			)
-			console.log(`${ind} - Processing link: ${link}`)
 			if (tmdbId) {
 				const movieDetails = await getMovieDetails(tmdbId)
-				tmdbIds.push(tmdbId)
-				if (movieDetails) watchlistData.push(movieDetails)
-				console.log(`Found TMDB ID: ${tmdbId} for link: ${link}`)
-			} else {
-				console.log(`No TMDB ID found for link: ${link}`)
+				if (movieDetails) {
+					watchlistData.push(movieDetails)
+					console.log(`Found movie: ${movieDetails.originalName}`)
+					// send progress update with movie details
+					res.write(
+						`data: ${JSON.stringify({
+							type: 'movie',
+							message: `${movieDetails.originalName} (${
+								movieDetails.year
+							}) işleniyor. ${index + 1} of ${total}.`,
+							progress: Math.round(((index + 1) / total) * 100),
+						})}\n\n`
+					)
+				}
 			}
-			// Add a delay to avoid overwhelming the server
-			await new Promise((resolve) => setTimeout(resolve, 4000))
-			ind++
+
+			// a delay to avoid overwhelming the server
+			await new Promise((resolve) => setTimeout(resolve, 1000))
 		}
-		console.log(`Total TMDB IDs found: ${tmdbIds.length}`)
-		return res.status(200).json(watchlistData)
+		// send final message when all movies are processed
+		if (clientConnected) {
+			res.write(
+				`data: ${JSON.stringify({
+					type: 'done',
+					message: 'İşlem tamamlandı.',
+					progress: 100,
+					movies: watchlistData,
+				})}\n\n`
+			)
+			res.end() // end connection
+		}
+	} catch (error: any) {
+		console.log('An error occurred:', error.message)
+		// send message to client if connection is still open
+		if (!res.writableEnded) {
+			res.write(
+				`data: ${JSON.stringify({
+					type: 'error',
+					message: 'Serverda bir hata oluştu.',
+					progress: 100,
+				})}\n\n`
+			)
+			res.end()
+		}
 	}
 }
