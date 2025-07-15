@@ -1,9 +1,13 @@
 import React, { useState } from 'react'
 import { Container, Box, Typography, TextField, Button } from '@mui/material'
 
+type Props = {
+	submitUsername: (username: string) => void
+}
+
 const LETTERBOXD_ICON_URL = '/assets/ltbd_light.svg'
 
-const UsernameView = () => {
+const UsernameView = ({ submitUsername }: Props) => {
 	const [username, setUsername] = useState('')
 
 	const changeUsername = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -11,9 +15,9 @@ const UsernameView = () => {
 	}
 
 	const handleSubmit = (event: React.FormEvent) => {
-		event.preventDefault() // Prevent default form submission
-		console.log('Letterboxd username submitted:', username)
-		alert(`Searching for Letterboxd user: ${username}`)
+		event.preventDefault()
+
+		submitUsername(username)
 	}
 
 	const isButtonDisabled = username.trim() === ''

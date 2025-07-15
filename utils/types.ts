@@ -30,3 +30,5 @@ export type Filter = {
     rating?: number;
     popularity?: number;
 }
+
+export type WatchlistData = Record<string, {movies: Movie[], lastUpdated: string}>

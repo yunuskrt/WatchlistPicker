@@ -1,6 +1,9 @@
 import * as XLSX from 'xlsx'
 import { saveAs } from 'file-saver'
 import { Movie } from '@utils/types'
+import { set } from 'idb-keyval'
+import { WatchlistData } from '@utils/types'
+import axios from 'axios'
 
 export const formatDuration = (minutes: number): string => {
     const h = Math.floor(minutes / 60)
@@ -69,4 +72,32 @@ export const pickRandom = (movies: Movie[]): Movie | null => {
 	if (movies.length === 0) return null
 	const randomIndex = Math.floor(Math.random() * movies.length)
 	return movies[randomIndex]
+}
+
+export const isStale = (lastUpdatedISO: string, now: Date): boolean => {
+	const STALE_MS = 2 * 60 * 1000;
+  	const diffMs = now.getTime() - new Date(lastUpdatedISO).getTime();
+  	return diffMs >= STALE_MS;
+	// const STALE_DAYS = 7
+	// const diffDays =
+	// 	(now.getTime() - new Date(lastUpdatedISO).getTime()) /
+	// 	(1000 * 60 * 60 * 24)
+	// return diffDays >= STALE_DAYS
+}
+
+export const fetchAndCache = async(
+	username: string,
+  	cache: WatchlistData,
+  	now: Date
+): Promise<Movie[]> => {
+	const result = await axios.get('api/v1/movies')
+	const movies: Movie[] = result.data
+
+	cache[username] = {
+		movies,
+		lastUpdated: now.toISOString(),
+	}
+  	await set('watchlistData', cache)
+
+  	return movies
 }
