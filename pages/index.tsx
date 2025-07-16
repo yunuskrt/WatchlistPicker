@@ -7,6 +7,8 @@ import { get, set } from 'idb-keyval'
 import UsernameView from '@views/username_view'
 import LoadingView from '@views/loading_view'
 import { isStale } from '@utils/helpers'
+import Snackbar, { SnackbarCloseReason } from '@mui/material/Snackbar'
+import Alert from '@mui/material/Alert'
 
 interface TableProps {
 	movies: Movie[]
@@ -19,6 +21,11 @@ interface ProgressProps {
 	type?: string
 	message: string
 	value: number
+}
+interface AlertProps {
+	show: boolean
+	type: 'success' | 'error' | 'info' | 'warning'
+	message: string
 }
 
 const Home = () => {
@@ -33,8 +40,33 @@ const Home = () => {
 		message: 'İşlem devam ediyor...',
 		value: 0,
 	})
+	const [alert, setAlert] = useState<AlertProps>({
+		show: false,
+		type: 'info',
+		message: '',
+	})
 	const eventSourceRef = useRef<EventSource | null>(null)
 
+	const showAlert = (
+		type: 'success' | 'error' | 'info' | 'warning',
+		message: string
+	) => {
+		setAlert({
+			show: true,
+			type,
+			message,
+		})
+	}
+	const closeAlert = (
+		event?: React.SyntheticEvent | Event,
+		reason?: SnackbarCloseReason
+	) => {
+		if (reason === 'clickaway') {
+			return
+		}
+
+		setAlert({ ...alert, show: false })
+	}
 	const searchUserWatchlist = async (username: string) => {
 		setTableData({ ...tableData, loading: true })
 
@@ -50,10 +82,14 @@ const Home = () => {
 			setTableData({
 				movies,
 				username,
-				lastUpdated: now.toISOString(),
+				lastUpdated: entry.lastUpdated,
 				loading: false,
 				status: movies.length > 0,
 			})
+			showAlert(
+				'warning',
+				`${username} kullanıcısının watchlisti önbellekten yüklendi!`
+			)
 		} else {
 			const es = new EventSource(`api/v1/progress/${username}`)
 			eventSourceRef.current = es
@@ -75,6 +111,10 @@ const Home = () => {
 								status: movies.length > 0,
 							})
 							es.close()
+							showAlert(
+								'success',
+								`${username} kullanıcısının watchlisti başarıyla yüklendi!`
+							)
 							cache[username] = {
 								movies,
 								lastUpdated: now.toISOString(),
@@ -98,11 +138,27 @@ const Home = () => {
 			}
 			es.onerror = () => {
 				es.close()
+				showAlert('error', 'Kullanıcı bulunamadı veya bir hata oluştu.')
+				setTableData({
+					...tableData,
+					loading: false,
+					status: false,
+				})
 			}
 		}
 	}
 	return (
-		<>
+		<div>
+			<Snackbar open={alert.show} autoHideDuration={3000} onClose={closeAlert}>
+				<Alert
+					onClose={closeAlert}
+					severity={alert.type}
+					variant='filled'
+					sx={{ width: '100%' }}
+				>
+					{alert.message}
+				</Alert>
+			</Snackbar>
 			{tableData.loading ? (
 				<LoadingView progress={progress.value} message={progress.message} />
 			) : tableData.status ? (
@@ -114,7 +170,7 @@ const Home = () => {
 			) : (
 				<UsernameView submitUsername={searchUserWatchlist} />
 			)}
-		</>
+		</div>
 	)
 }
 
