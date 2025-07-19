@@ -18,6 +18,7 @@
       "@/*": ["./*"],
       "@assets/*": ["/assets/*"],
       "@components/*": ["components/*"],
+      "@context/*": ["context/*"],
       "@styles/*": ["styles/*"],
       "@utils/*": ["utils/*"],
       "@views/*": ["views/*"],

@@ -1,4 +1,6 @@
-import React, { useState } from 'react'
+import React, { useState, useContext } from 'react'
+import { ThemeContext } from '@context/ThemeContext'
+
 import { styled, alpha } from '@mui/material/styles'
 import AppBar from '@mui/material/AppBar'
 import Box from '@mui/material/Box'
@@ -7,7 +9,8 @@ import IconButton from '@mui/material/IconButton'
 import InputBase from '@mui/material/InputBase'
 import MenuIcon from '@mui/icons-material/Menu'
 import SearchIcon from '@mui/icons-material/Search'
-import ContrastIcon from '@mui/icons-material/Contrast'
+import LightModeIcon from '@mui/icons-material/LightMode'
+import DarkModeIcon from '@mui/icons-material/DarkMode'
 import FilterDrawer from '@components/filter_drawer'
 import Drawer from '@mui/material/Drawer'
 
@@ -62,6 +65,10 @@ const SearchAppBar = ({
 	removeFilters,
 	searchMovies,
 }: Props) => {
+	const themeContext = useContext(ThemeContext)
+	const mode = themeContext?.mode ?? false
+	const setMode = themeContext?.setMode ?? (() => {})
+
 	const [filterDrawerOpen, setFilterDrawerOpen] = useState(false)
 	const toggleDrawer = (newOpen: boolean) => () => {
 		setFilterDrawerOpen(newOpen)
@@ -71,24 +78,22 @@ const SearchAppBar = ({
 		<Box sx={{ flexGrow: 1 }}>
 			<AppBar position='static'>
 				<Toolbar>
-					<div>
-						<IconButton
-							size='large'
-							edge='start'
-							color='inherit'
-							aria-label='open drawer'
-							sx={{ mr: 2 }}
-							onClick={toggleDrawer(true)}
-						>
-							<MenuIcon />
-						</IconButton>
-						<Drawer open={filterDrawerOpen} onClose={toggleDrawer(false)}>
-							<FilterDrawer
-								submitFilters={submitFilters}
-								removeFilters={removeFilters}
-							/>
-						</Drawer>
-					</div>
+					<IconButton
+						size='large'
+						edge='start'
+						color='inherit'
+						aria-label='open drawer'
+						sx={{ mr: 2 }}
+						onClick={toggleDrawer(true)}
+					>
+						<MenuIcon />
+					</IconButton>
+					<Drawer open={filterDrawerOpen} onClose={toggleDrawer(false)}>
+						<FilterDrawer
+							submitFilters={submitFilters}
+							removeFilters={removeFilters}
+						/>
+					</Drawer>
 
 					<Search>
 						<SearchIconWrapper>
@@ -108,9 +113,9 @@ const SearchAppBar = ({
 						aria-controls='primary-search-theme'
 						aria-haspopup='true'
 						color='inherit'
-						onClick={() => console.log('TODO - Switch Theme clicked')}
+						onClick={() => setMode(!mode)}
 					>
-						<ContrastIcon />
+						{mode ? <LightModeIcon /> : <DarkModeIcon />}
 					</IconButton>
 				</Toolbar>
 			</AppBar>

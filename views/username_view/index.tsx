@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { Container, Box, Typography, TextField, Button } from '@mui/material'
+import HomeAppBar from '@/components/home_appbar'
 
 type Props = {
 	submitUsername: (username: string) => void
@@ -23,61 +24,64 @@ const UsernameView = ({ submitUsername }: Props) => {
 	const isButtonDisabled = username.trim() === ''
 
 	return (
-		<Container component='main' maxWidth='xs'>
-			<Box
-				sx={{
-					display: 'flex',
-					flexDirection: 'column',
-					alignItems: 'center',
-					justifyContent: 'center',
-					textAlign: 'center',
-					minHeight: '80vh',
-				}}
-			>
+		<Box>
+			<HomeAppBar />
+			<Container component='main' maxWidth='xs'>
 				<Box
-					component='img'
-					src={LETTERBOXD_ICON_URL}
-					alt='Letterboxd Logo'
 					sx={{
-						m: 2,
-						maxWidth: '256px',
+						display: 'flex',
+						flexDirection: 'column',
+						alignItems: 'center',
+						justifyContent: 'center',
+						textAlign: 'center',
+						minHeight: '80vh',
 					}}
-				/>
-
-				<Typography
-					variant='body2'
-					color='text.secondary'
-					sx={{ mt: 1, mb: 4 }}
 				>
-					Enter your username to retrieve platforms for your watchlist.
-				</Typography>
-
-				<Box component='form' onSubmit={handleSubmit} sx={{ width: '100%' }}>
-					<TextField
-						id='letterboxd-username'
-						label='Letterboxd Username'
-						variant='outlined'
-						margin='normal'
-						required
-						fullWidth
-						autoFocus
-						value={username}
-						onChange={changeUsername}
+					<Box
+						component='img'
+						src={LETTERBOXD_ICON_URL}
+						alt='Letterboxd Logo'
+						sx={{
+							m: 2,
+							maxWidth: '256px',
+						}}
 					/>
 
-					<Button
-						type='submit'
-						fullWidth
-						variant='contained'
-						size='large'
-						disabled={isButtonDisabled}
-						sx={{ mt: 2, py: '12px' }}
+					<Typography
+						variant='body2'
+						color='text.secondary'
+						sx={{ mt: 1, mb: 4 }}
 					>
-						Continue
-					</Button>
+						Enter your username to retrieve platforms for your watchlist.
+					</Typography>
+
+					<Box component='form' onSubmit={handleSubmit} sx={{ width: '100%' }}>
+						<TextField
+							id='letterboxd-username'
+							label='Letterboxd Username'
+							variant='outlined'
+							margin='normal'
+							required
+							fullWidth
+							autoFocus
+							value={username}
+							onChange={changeUsername}
+						/>
+
+						<Button
+							type='submit'
+							fullWidth
+							variant='contained'
+							size='large'
+							disabled={isButtonDisabled}
+							sx={{ mt: 2, py: '12px' }}
+						>
+							Continue
+						</Button>
+					</Box>
 				</Box>
-			</Box>
-		</Container>
+			</Container>
+		</Box>
 	)
 }
 export default UsernameView
