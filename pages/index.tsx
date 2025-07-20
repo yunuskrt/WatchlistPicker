@@ -157,7 +157,12 @@ const Home = () => {
 	}
 	return (
 		<div>
-			<Snackbar open={alert.show} autoHideDuration={3000} onClose={closeAlert}>
+			<Snackbar
+				open={alert.show}
+				autoHideDuration={3000}
+				onClose={closeAlert}
+				anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
+			>
 				<Alert
 					onClose={closeAlert}
 					severity={alert.type}

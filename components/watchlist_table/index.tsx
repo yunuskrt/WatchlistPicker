@@ -18,6 +18,9 @@ import PlatformIcon from '@components/platform_icon'
 import { PLATFORMS } from '@utils/constants'
 import { formatDuration, sortRows } from '@utils/helpers'
 import { Movie } from '@utils/types'
+import useMediaQuery from '@mui/material/useMediaQuery'
+import { useTheme } from '@mui/material/styles'
+import { Card, CardContent, Typography, Box } from '@mui/material'
 
 type Props = {
 	rows: Movie[]
@@ -82,6 +85,9 @@ const WatchlistTable = ({ rows, openMovieModal }: Props) => {
 	const [orderBy, setOrderBy] = useState<keyof Movie | ''>('')
 	const [order, setOrder] = useState<'asc' | 'desc'>('asc')
 
+	const theme = useTheme()
+	const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
+
 	const changePage = (event: unknown, newPage: number) => {
 		setPage(newPage)
 	}
@@ -96,6 +102,68 @@ const WatchlistTable = ({ rows, openMovieModal }: Props) => {
 			setOrderBy(columnId)
 			setOrder('asc')
 		}
+	}
+
+	if (isMobile) {
+		return (
+			<Box>
+				{rows
+					.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+					.map((row) => (
+						<Card
+							key={row.id}
+							sx={{ mb: 2 }}
+							onClick={() => openMovieModal(row)}
+						>
+							<CardContent sx={{ display: 'flex', gap: 2 }}>
+								<Avatar
+									variant='square'
+									src={row.image}
+									alt={row.originalName}
+									sx={{ width: 60, height: 60 }}
+								/>
+								<Box>
+									<Typography
+										variant='subtitle1'
+										fontWeight='bold'
+										sx={{ cursor: 'pointer' }}
+									>
+										{row.originalName}
+									</Typography>
+									<Typography variant='body2' color='text.secondary'>
+										{row.name}
+									</Typography>
+									<Typography variant='body2'>Year: {row.year}</Typography>
+									<Typography variant='body2'>
+										Duration: {formatDuration(row.minutes)}
+									</Typography>
+									<Box className={styles.platforms}>
+										{row.platforms.map(
+											(p) =>
+												PLATFORMS[p] && (
+													<PlatformIcon key={p} {...PLATFORMS[p]} />
+												)
+										)}
+									</Box>
+									<Box className={styles.rating}>
+										<StarIcon fontSize='small' />
+										<span>{row.rating.toFixed(1)}</span>
+									</Box>
+								</Box>
+							</CardContent>
+						</Card>
+					))}
+				<TablePagination
+					rowsPerPageOptions={[{ label: 'All', value: -1 }, 5, 10, 25]}
+					component='div'
+					count={rows.length}
+					rowsPerPage={rowsPerPage}
+					page={page}
+					onPageChange={changePage}
+					onRowsPerPageChange={changeRowsPerPage}
+				/>
+			</Box>
+		)
 	}
 
 	return (
@@ -143,12 +211,20 @@ const WatchlistTable = ({ rows, openMovieModal }: Props) => {
 										/>
 									</TableCell>
 									<TableCell align='left'>
-										<div className={styles.movieName}>
+										<Box className={styles.movieName}>
 											<strong onClick={() => openMovieModal(row)}>
 												{row.originalName}
 											</strong>
-											<em>{row.name}</em>
-										</div>
+											<Typography
+												variant='subtitle1'
+												fontStyle='italic'
+												fontSize='0.9rem'
+												color='text.secondary'
+												sx={{ cursor: 'pointer' }}
+											>
+												{row.name}
+											</Typography>
+										</Box>
 									</TableCell>
 									<TableCell align='right'>{row.year}</TableCell>
 									<TableCell align='right'>
@@ -156,7 +232,7 @@ const WatchlistTable = ({ rows, openMovieModal }: Props) => {
 									</TableCell>
 
 									<TableCell>
-										<div className={styles.platforms}>
+										<Box className={styles.platforms}>
 											{row.platforms.map(
 												(platform) =>
 													PLATFORMS[platform] && (
@@ -166,23 +242,23 @@ const WatchlistTable = ({ rows, openMovieModal }: Props) => {
 														/>
 													)
 											)}
-										</div>
+										</Box>
 									</TableCell>
 									<TableCell>
-										<div className={styles.rating}>
+										<Box className={styles.rating}>
 											<StarIcon />
 											<span>{row.rating.toFixed(1)}</span>
-										</div>
+										</Box>
 									</TableCell>
 									<TableCell align='right'>
-										<div className={styles.popularity}>
+										<Box className={styles.popularity}>
 											<WhatshotIcon />
 											<span>{row.popularity.toFixed(2)}</span>
-										</div>
+										</Box>
 
-										<div className={styles.voteCount}>
+										<Box className={styles.voteCount}>
 											{row.vote_count} votes
-										</div>
+										</Box>
 									</TableCell>
 									<TableCell align='right'>{row.genres.join(', ')}</TableCell>
 								</TableRow>
