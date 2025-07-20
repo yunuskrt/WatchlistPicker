@@ -35,6 +35,11 @@ const WatchlistTable = ({ rows, openMovieModal }: Props) => {
 	const [page, setPage] = useState(0)
 	const [rowsPerPage, setRowsPerPage] = useState(-1)
 
+	const visibleRows =
+		rowsPerPage === -1
+			? rows
+			: rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+
 	const theme = useTheme()
 	const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
 
@@ -53,74 +58,71 @@ const WatchlistTable = ({ rows, openMovieModal }: Props) => {
 			setOrder('asc')
 		}
 	}
+
 	return (
 		<>
 			{isMobile ? (
 				<Box>
-					{rows
-						.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-						.map((row) => (
-							<Card
-								key={row.id}
-								sx={{ mb: 2 }}
-								onClick={() => openMovieModal(row)}
+					{visibleRows.map((row) => (
+						<Card
+							key={row.id}
+							sx={{ mb: 2 }}
+							onClick={() => openMovieModal(row)}
+						>
+							<CardContent
+								sx={{ display: 'flex', alignItems: 'center', gap: 2 }}
 							>
-								<CardContent
-									sx={{ display: 'flex', alignItems: 'center', gap: 2 }}
+								<Avatar
+									variant='square'
+									src={row.image}
+									alt={row.originalName}
+									sx={{ width: 64, height: 80 }}
+								/>
+								<Box
+									sx={{
+										display: 'flex',
+										flexDirection: 'column',
+										gap: 0.8,
+										flexGrow: 1,
+									}}
 								>
-									<Avatar
-										variant='square'
-										src={row.image}
-										alt={row.originalName}
-										sx={{ width: 64, height: 80 }}
-									/>
+									<Typography
+										variant='subtitle1'
+										fontWeight='bold'
+										sx={{ cursor: 'pointer' }}
+									>
+										{row.originalName} - {row.year}
+									</Typography>
+									<Typography variant='body2' color='text.secondary'>
+										{row.name}
+									</Typography>
+									<Typography variant='body2'>
+										{formatDuration(row.minutes)}
+									</Typography>
+									<Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+										{row.platforms.map(
+											(p) =>
+												PLATFORMS[p] && (
+													<PlatformIcon key={p} {...PLATFORMS[p]} />
+												)
+										)}
+									</Box>
 									<Box
 										sx={{
 											display: 'flex',
-											flexDirection: 'column',
-											gap: 0.8,
-											flexGrow: 1,
+											alignItems: 'center',
+											color: '#FFD700',
 										}}
 									>
-										<Typography
-											variant='subtitle1'
-											fontWeight='bold'
-											sx={{ cursor: 'pointer' }}
-										>
-											{row.originalName} - {row.year}
+										<StarIcon fontSize='small' />
+										<Typography sx={{ fontSize: '0.9rem', fontWeight: 'bold' }}>
+											{row.rating.toFixed(1)}
 										</Typography>
-										<Typography variant='body2' color='text.secondary'>
-											{row.name}
-										</Typography>
-										<Typography variant='body2'>
-											{formatDuration(row.minutes)}
-										</Typography>
-										<Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-											{row.platforms.map(
-												(p) =>
-													PLATFORMS[p] && (
-														<PlatformIcon key={p} {...PLATFORMS[p]} />
-													)
-											)}
-										</Box>
-										<Box
-											sx={{
-												display: 'flex',
-												alignItems: 'center',
-												color: '#FFD700',
-											}}
-										>
-											<StarIcon fontSize='small' />
-											<Typography
-												sx={{ fontSize: '0.9rem', fontWeight: 'bold' }}
-											>
-												{row.rating.toFixed(1)}
-											</Typography>
-										</Box>
 									</Box>
-								</CardContent>
-							</Card>
-						))}
+								</Box>
+							</CardContent>
+						</Card>
+					))}
 					<TablePagination
 						rowsPerPageOptions={[{ label: 'All', value: -1 }, 5, 10, 25]}
 						component='div'
@@ -160,111 +162,110 @@ const WatchlistTable = ({ rows, openMovieModal }: Props) => {
 								</TableRow>
 							</TableHead>
 							<TableBody>
-								{sortRows(
-									rows.slice(
-										page * rowsPerPage,
-										page * rowsPerPage + rowsPerPage
-									),
-									orderBy as keyof Movie,
-									order
-								).map((row) => {
-									return (
-										<TableRow
-											sx={{ cursor: 'pointer' }}
-											hover
-											role='checkbox'
-											tabIndex={-1}
-											key={row.id}
-											onClick={() => openMovieModal(row)}
-										>
-											<TableCell>
-												<Avatar
-													alt={row.originalName}
-													src={row.image}
-													sx={{ width: 40, height: 50 }}
-													variant='square'
-												/>
-											</TableCell>
-											<TableCell align='left'>
-												<Box sx={{ display: 'flex', flexDirection: 'column' }}>
-													<Typography variant='subtitle1' fontWeight='bold'>
-														{row.originalName}
-													</Typography>
-													<Typography
-														sx={{ cursor: 'pointer' }}
-														variant='subtitle1'
-														fontStyle='italic'
-														fontSize='0.9rem'
-														color='text.secondary'
+								{sortRows(visibleRows, orderBy as keyof Movie, order).map(
+									(row) => {
+										return (
+											<TableRow
+												sx={{ cursor: 'pointer' }}
+												hover
+												role='checkbox'
+												tabIndex={-1}
+												key={row.id}
+												onClick={() => openMovieModal(row)}
+											>
+												<TableCell>
+													<Avatar
+														alt={row.originalName}
+														src={row.image}
+														sx={{ width: 40, height: 50 }}
+														variant='square'
+													/>
+												</TableCell>
+												<TableCell align='left'>
+													<Box
+														sx={{ display: 'flex', flexDirection: 'column' }}
 													>
-														{row.name}
-													</Typography>
-												</Box>
-											</TableCell>
-											<TableCell align='right'>{row.year}</TableCell>
-											<TableCell align='right'>
-												{formatDuration(row.minutes)}
-											</TableCell>
+														<Typography variant='subtitle1' fontWeight='bold'>
+															{row.originalName}
+														</Typography>
+														<Typography
+															sx={{ cursor: 'pointer' }}
+															variant='subtitle1'
+															fontStyle='italic'
+															fontSize='0.9rem'
+															color='text.secondary'
+														>
+															{row.name}
+														</Typography>
+													</Box>
+												</TableCell>
+												<TableCell align='right'>{row.year}</TableCell>
+												<TableCell align='right'>
+													{formatDuration(row.minutes)}
+												</TableCell>
 
-											<TableCell>
-												<Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-													{row.platforms.map(
-														(platform) =>
-															PLATFORMS[platform] && (
-																<PlatformIcon
-																	key={platform}
-																	{...PLATFORMS[platform]}
-																/>
-															)
-													)}
-												</Box>
-											</TableCell>
-											<TableCell>
-												<Box
-													sx={{
-														display: 'flex',
-														alignItems: 'center',
-														color: '#FFD700',
-													}}
-												>
-													<StarIcon />
-													<Typography
-														sx={{ fontSize: '0.9rem', fontWeight: 'bold' }}
+												<TableCell>
+													<Box
+														sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}
 													>
-														{row.rating.toFixed(1)}
-													</Typography>
-												</Box>
-											</TableCell>
-											<TableCell align='right'>
-												<Box
-													sx={{
-														display: 'flex',
-														alignItems: 'center',
-														justifyContent: 'flex-end',
-														color: '#00BFFF',
-													}}
-												>
-													<WhatshotIcon />
-													<Typography
-														sx={{ fontSize: '0.9rem', fontWeight: 'bold' }}
+														{row.platforms.map(
+															(platform) =>
+																PLATFORMS[platform] && (
+																	<PlatformIcon
+																		key={platform}
+																		{...PLATFORMS[platform]}
+																	/>
+																)
+														)}
+													</Box>
+												</TableCell>
+												<TableCell>
+													<Box
+														sx={{
+															display: 'flex',
+															alignItems: 'center',
+															color: '#FFD700',
+														}}
 													>
-														{row.popularity.toFixed(2)}
+														<StarIcon />
+														<Typography
+															sx={{ fontSize: '0.9rem', fontWeight: 'bold' }}
+														>
+															{row.rating.toFixed(1)}
+														</Typography>
+													</Box>
+												</TableCell>
+												<TableCell align='right'>
+													<Box
+														sx={{
+															display: 'flex',
+															alignItems: 'center',
+															justifyContent: 'flex-end',
+															color: '#00BFFF',
+														}}
+													>
+														<WhatshotIcon />
+														<Typography
+															sx={{ fontSize: '0.9rem', fontWeight: 'bold' }}
+														>
+															{row.popularity.toFixed(2)}
+														</Typography>
+													</Box>
+													<Typography
+														variant='body2'
+														color='text.secondary'
+														fontSize='0.9em'
+													>
+														{row.vote_count} votes
 													</Typography>
-												</Box>
-												<Typography
-													variant='body2'
-													color='text.secondary'
-													fontSize='0.9em'
-												>
-													{row.vote_count} votes
-												</Typography>
-											</TableCell>
-											<TableCell align='right'>
-												{row.genres.join(', ')}
-											</TableCell>
-										</TableRow>
-									)
-								})}
+												</TableCell>
+												<TableCell align='right'>
+													{row.genres.join(', ')}
+												</TableCell>
+											</TableRow>
+										)
+									}
+								)}
 							</TableBody>
 						</Table>
 					</TableContainer>
