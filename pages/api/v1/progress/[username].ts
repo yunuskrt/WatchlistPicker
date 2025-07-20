@@ -166,10 +166,11 @@ export default async function handler(
 					res.write(
 						`data: ${JSON.stringify({
 							type: 'movie',
-							message: `${movieDetails.originalName} (${
-								movieDetails.year
-							}) işleniyor. ${index + 1} of ${total}.`,
+							message: `${movieDetails.originalName} (${movieDetails.year}). ${
+								index + 1
+							} of ${total}.`,
 							progress: Math.round(((index + 1) / total) * 100),
+							image: movieDetails.image || null,
 						})}\n\n`
 					)
 				}

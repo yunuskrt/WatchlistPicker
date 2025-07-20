@@ -1,40 +1,44 @@
-import React, { useMemo } from 'react'
-import {
-	Box,
-	Skeleton,
-	Table,
-	TableBody,
-	TableCell,
-	TableHead,
-	TableRow,
-	Typography,
-} from '@mui/material'
+import React, { useState, useMemo } from 'react'
+import Avatar from '@mui/material/Avatar'
+import Box from '@mui/material/Box'
+import Popover from '@mui/material/Popover'
+import Skeleton from '@mui/material/Skeleton'
+import Table from '@mui/material/Table'
+import TableBody from '@mui/material/TableBody'
+import TableCell from '@mui/material/TableCell'
+import TableHead from '@mui/material/TableHead'
+import TableRow from '@mui/material/TableRow'
+import Typography from '@mui/material/Typography'
 import Progress from '@components/progress'
 
 interface MovieTableLoadingProps {
 	rows?: number
 	progress: number
 	message?: string
+	image: string | null
 }
 
 const LoadingView = ({
 	rows = 25,
 	progress,
 	message,
+	image,
 }: MovieTableLoadingProps) => {
 	const skeletonRows = useMemo(() => [...Array(rows).keys()], [rows])
+	const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
+
+	const openPopover = (event: React.MouseEvent<HTMLElement>) => {
+		setAnchorEl(event.currentTarget)
+	}
+
+	const closePopover = () => {
+		setAnchorEl(null)
+	}
+
+	const open = Boolean(anchorEl)
 
 	return (
 		<Box>
-			<Box sx={{ width: '100%' }}>
-				<Progress value={progress} sx={{ height: 20, borderRadius: 1 }} />
-
-				{message && (
-					<Typography variant='body2' color='text.secondary'>
-						{message}
-					</Typography>
-				)}
-			</Box>
 			<Box sx={{ overflow: 'hidden', maxHeight: '90vh' }}>
 				<Table aria-label='loading movie table'>
 					<TableHead>
@@ -111,6 +115,70 @@ const LoadingView = ({
 						))}
 					</TableBody>
 				</Table>
+			</Box>
+
+			<Box
+				sx={{
+					position: 'absolute',
+					top: '46%',
+					left: '50%',
+					transform: 'translate(-50%, -50%)',
+					zIndex: 1,
+					display: 'flex',
+					flexDirection: 'column',
+					gap: '2px',
+					width: '240px',
+					height: '250px',
+				}}
+			>
+				{image ? (
+					<Avatar
+						src={image}
+						sx={{ width: 240, height: 250, bgcolor: 'transparent' }}
+						variant='rounded'
+					/>
+				) : (
+					<Skeleton
+						variant='rectangular'
+						width={240}
+						height={250}
+						sx={{ bgcolor: 'grey.300' }}
+					/>
+				)}
+				<Progress value={progress} sx={{ height: 10 }} />
+				<Box>
+					<Typography
+						variant='body2'
+						color='text.secondary'
+						noWrap
+						aria-owns={open ? 'mouse-over-popover' : undefined}
+						aria-haspopup='true'
+						onMouseEnter={openPopover}
+						onMouseLeave={closePopover}
+						aria-label='movie info'
+						aria-controls='primary-search-theme'
+					>
+						{message}
+					</Typography>
+					<Popover
+						id='mouse-over-popover'
+						sx={{ pointerEvents: 'none' }}
+						open={open}
+						anchorEl={anchorEl}
+						anchorOrigin={{
+							vertical: 'bottom',
+							horizontal: 'left',
+						}}
+						transformOrigin={{
+							vertical: 'top',
+							horizontal: 'left',
+						}}
+						onClose={closePopover}
+						disableRestoreFocus
+					>
+						<Typography sx={{ p: 1 }}>{message}</Typography>
+					</Popover>
+				</Box>
 			</Box>
 		</Box>
 	)

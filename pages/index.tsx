@@ -21,6 +21,7 @@ interface ProgressProps {
 	type?: string
 	message: string
 	value: number
+	image: string | null
 }
 interface AlertProps {
 	show: boolean
@@ -37,8 +38,9 @@ const Home = () => {
 		status: false,
 	})
 	const [progress, setProgress] = useState<ProgressProps>({
-		message: 'İşlem devam ediyor...',
+		message: 'Processing...',
 		value: 0,
+		image: null,
 	})
 	const [alert, setAlert] = useState<AlertProps>({
 		show: false,
@@ -102,6 +104,7 @@ const Home = () => {
 							setProgress({
 								message: eventData.message,
 								value: eventData.progress,
+								image: eventData.image || null,
 							})
 							setTableData({
 								movies,
@@ -122,13 +125,18 @@ const Home = () => {
 							await set('watchlistData', cache)
 							break
 						case 'error':
-							setProgress({ message: eventData.message, value: 100 })
+							setProgress({
+								message: eventData.message,
+								value: 100,
+								image: null,
+							})
 							es.close()
 							break
 						case 'movie':
 							setProgress({
 								message: eventData.message,
 								value: eventData.progress,
+								image: eventData.image || null,
 							})
 							break
 					}
@@ -160,7 +168,11 @@ const Home = () => {
 				</Alert>
 			</Snackbar>
 			{tableData.loading ? (
-				<LoadingView progress={progress.value} message={progress.message} />
+				<LoadingView
+					progress={progress.value}
+					message={progress.message}
+					image={progress.image}
+				/>
 			) : tableData.status ? (
 				<WatchlistView
 					movies={tableData.movies}
