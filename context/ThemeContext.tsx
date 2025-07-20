@@ -1,10 +1,7 @@
 'use client'
-
 import React, { createContext, useState, useEffect, ReactNode } from 'react'
 
 import { createTheme, useMediaQuery } from '@mui/material'
-
-// const { createContext, useState, useEffect } = require('react')
 
 export const ThemeContext = createContext<
 	| {
@@ -17,7 +14,6 @@ export const ThemeContext = createContext<
 
 const ThemeContextProvider = ({ children }: { children: ReactNode }) => {
 	const prefersMode = useMediaQuery('(prefers-color-scheme: dark)')
-
 	const [mode, setMode] = useState(prefersMode)
 
 	useEffect(() => {
@@ -36,5 +32,4 @@ const ThemeContextProvider = ({ children }: { children: ReactNode }) => {
 		</ThemeContext.Provider>
 	)
 }
-
 export default ThemeContextProvider

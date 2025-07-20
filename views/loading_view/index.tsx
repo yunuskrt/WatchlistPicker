@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react'
 import Avatar from '@mui/material/Avatar'
 import Box from '@mui/material/Box'
 import Popover from '@mui/material/Popover'
+import Progress from '@components/progress'
 import Skeleton from '@mui/material/Skeleton'
 import Table from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'
@@ -9,32 +10,18 @@ import TableCell from '@mui/material/TableCell'
 import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import Typography from '@mui/material/Typography'
-import Progress from '@components/progress'
+import { MovieTableLoading } from '@utils/types'
 
-interface MovieTableLoadingProps {
-	rows?: number
-	progress: number
-	message?: string
-	image: string | null
-}
-
-const LoadingView = ({
-	rows = 25,
-	progress,
-	message,
-	image,
-}: MovieTableLoadingProps) => {
+type Props = MovieTableLoading
+const LoadingView = ({ rows = 25, progress, message, image }: Props) => {
 	const skeletonRows = useMemo(() => [...Array(rows).keys()], [rows])
 	const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
-
 	const openPopover = (event: React.MouseEvent<HTMLElement>) => {
 		setAnchorEl(event.currentTarget)
 	}
-
 	const closePopover = () => {
 		setAnchorEl(null)
 	}
-
 	const open = Boolean(anchorEl)
 
 	return (
@@ -60,10 +47,10 @@ const LoadingView = ({
 									{/* Title/Subtitle */}
 									<Box display='flex' alignItems='center'>
 										<Skeleton
+											sx={{ mr: 2 }}
 											variant='rectangular'
 											width={40}
 											height={56}
-											sx={{ mr: 2 }}
 										/>
 										<Box>
 											<Skeleton width='160px' height={18} />
@@ -87,11 +74,11 @@ const LoadingView = ({
 									<Box display='flex' alignItems='center'>
 										{[0, 1, 2].map((p) => (
 											<Skeleton
+												sx={{ mr: p !== 2 ? 1 : 0 }}
 												key={p}
 												variant='circular'
 												width={24}
 												height={24}
-												sx={{ mr: p !== 2 ? 1 : 0 }}
 											/>
 										))}
 									</Box>
@@ -133,30 +120,30 @@ const LoadingView = ({
 			>
 				{image ? (
 					<Avatar
-						src={image}
 						sx={{ width: 240, height: 250, bgcolor: 'transparent' }}
+						src={image}
 						variant='rounded'
 					/>
 				) : (
 					<Skeleton
-						variant='rectangular'
+						sx={{ bgcolor: 'grey.300' }}
 						width={240}
 						height={250}
-						sx={{ bgcolor: 'grey.300' }}
+						variant='rectangular'
 					/>
 				)}
 				<Progress value={progress} sx={{ height: 10 }} />
 				<Box>
 					<Typography
+						aria-owns={open ? 'mouse-over-popover' : undefined}
+						aria-haspopup='true'
+						aria-label='movie info'
+						aria-controls='primary-search-theme'
 						variant='body2'
 						color='text.secondary'
 						noWrap
-						aria-owns={open ? 'mouse-over-popover' : undefined}
-						aria-haspopup='true'
 						onMouseEnter={openPopover}
 						onMouseLeave={closePopover}
-						aria-label='movie info'
-						aria-controls='primary-search-theme'
 					>
 						{message}
 					</Typography>
@@ -173,8 +160,8 @@ const LoadingView = ({
 							vertical: 'top',
 							horizontal: 'left',
 						}}
-						onClose={closePopover}
 						disableRestoreFocus
+						onClose={closePopover}
 					>
 						<Typography sx={{ p: 1 }}>{message}</Typography>
 					</Popover>
@@ -183,5 +170,4 @@ const LoadingView = ({
 		</Box>
 	)
 }
-
 export default LoadingView

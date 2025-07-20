@@ -1,18 +1,20 @@
 import React from 'react'
-import Card from '@mui/material/Card'
-import CardMedia from '@mui/material/CardMedia'
-import CardContent from '@mui/material/CardContent'
-import Typography from '@mui/material/Typography'
-import Chip from '@mui/material/Chip'
-import Rating from '@mui/material/Rating'
-import Box from '@mui/material/Box'
-import Stack from '@mui/material/Stack'
-import Avatar from '@mui/material/Avatar'
 
+import Avatar from '@mui/material/Avatar'
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday'
+import Card from '@mui/material/Card'
+import CardContent from '@mui/material/CardContent'
+import CardMedia from '@mui/material/CardMedia'
+import Chip from '@mui/material/Chip'
+import Box from '@mui/material/Box'
+import Rating from '@mui/material/Rating'
 import ScheduleIcon from '@mui/icons-material/Schedule'
+import Stack from '@mui/material/Stack'
+import Typography from '@mui/material/Typography'
+
 import { Movie } from '@utils/types'
 import { PLATFORMS } from '@utils/constants'
+
 type Props = {
 	movie: Movie | null
 }

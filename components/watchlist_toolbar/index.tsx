@@ -1,8 +1,10 @@
 import React from 'react'
+
 import Button from '@mui/material/Button'
 import ButtonGroup from '@mui/material/ButtonGroup'
 import DownloadIcon from '@mui/icons-material/Download'
 import ShuffleIcon from '@mui/icons-material/Shuffle'
+
 import { downloadExcel } from '@utils/helpers'
 import { Movie } from '@utils/types'
 
@@ -23,8 +25,6 @@ const WatchlistToolbar = ({ movieData, pickRandomMovie }: Props) => {
 				Pick Random Movie
 			</Button>
 			<Button
-				startIcon={<DownloadIcon />}
-				variant='outlined'
 				sx={{
 					backgroundColor: '#217346',
 					'&:hover': {
@@ -32,6 +32,8 @@ const WatchlistToolbar = ({ movieData, pickRandomMovie }: Props) => {
 					},
 					color: '#fff',
 				}}
+				startIcon={<DownloadIcon />}
+				variant='outlined'
 				color='success'
 				onClick={() => downloadExcel(movieData)}
 			>

@@ -1,7 +1,14 @@
 import React, { useState } from 'react'
+import useMediaQuery from '@mui/material/useMediaQuery'
+import { useTheme } from '@mui/material/styles'
 
 import Avatar from '@mui/material/Avatar'
+import Box from '@mui/material/Box'
+import Card from '@mui/material/Card'
+import CardContent from '@mui/material/CardContent'
 import Paper from '@mui/material/Paper'
+import PlatformIcon from '@components/platform_icon'
+import StarIcon from '@mui/icons-material/Star'
 import Table from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'
 import TableCell from '@mui/material/TableCell'
@@ -10,80 +17,23 @@ import TableHead from '@mui/material/TableHead'
 import TablePagination from '@mui/material/TablePagination'
 import TableRow from '@mui/material/TableRow'
 import TableSortLabel from '@mui/material/TableSortLabel'
-
-import StarIcon from '@mui/icons-material/Star'
+import Typography from '@mui/material/Typography'
 import WhatshotIcon from '@mui/icons-material/Whatshot'
 
-import PlatformIcon from '@components/platform_icon'
-import { PLATFORMS } from '@utils/constants'
+import { COLUMNS, PLATFORMS } from '@utils/constants'
 import { formatDuration, sortRows } from '@utils/helpers'
 import { Movie } from '@utils/types'
-import useMediaQuery from '@mui/material/useMediaQuery'
-import { useTheme } from '@mui/material/styles'
-import { Card, CardContent, Typography, Box } from '@mui/material'
 
 type Props = {
 	rows: Movie[]
 	openMovieModal: (movie: Movie) => void
 }
-import styles from '@styles/WatchlistTable.module.css'
-
-interface Column {
-	id: keyof Movie | 'image'
-	label: string
-	minWidth?: number
-	maxWidth?: number
-	align?: 'right'
-	sortable?: boolean
-}
-const columns: readonly Column[] = [
-	{ id: 'image', label: '' },
-	{ id: 'name', label: 'Title', minWidth: 200 },
-	{
-		id: 'year',
-		label: 'Year',
-		align: 'right',
-		sortable: true,
-	},
-	{
-		id: 'minutes',
-		label: 'Runtime',
-		minWidth: 100,
-		align: 'right',
-		sortable: true,
-	},
-	{
-		id: 'platforms',
-		label: 'Platforms',
-		minWidth: 200,
-		sortable: true,
-	},
-	{
-		id: 'rating',
-		label: 'Rating',
-		minWidth: 170,
-		sortable: true,
-	},
-	{
-		id: 'popularity',
-		label: 'Popularity',
-		align: 'right',
-		minWidth: 100,
-		sortable: true,
-	},
-	{
-		id: 'genres',
-		label: 'Genres',
-		minWidth: 200,
-		align: 'right',
-	},
-]
 
 const WatchlistTable = ({ rows, openMovieModal }: Props) => {
+	const [order, setOrder] = useState<'asc' | 'desc'>('asc')
+	const [orderBy, setOrderBy] = useState<keyof Movie | ''>('')
 	const [page, setPage] = useState(0)
 	const [rowsPerPage, setRowsPerPage] = useState(-1)
-	const [orderBy, setOrderBy] = useState<keyof Movie | ''>('')
-	const [order, setOrder] = useState<'asc' | 'desc'>('asc')
 
 	const theme = useTheme()
 	const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
@@ -103,180 +53,233 @@ const WatchlistTable = ({ rows, openMovieModal }: Props) => {
 			setOrder('asc')
 		}
 	}
-
-	if (isMobile) {
-		return (
-			<Box>
-				{rows
-					.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-					.map((row) => (
-						<Card
-							key={row.id}
-							sx={{ mb: 2 }}
-							onClick={() => openMovieModal(row)}
-						>
-							<CardContent sx={{ display: 'flex', gap: 2 }}>
-								<Avatar
-									variant='square'
-									src={row.image}
-									alt={row.originalName}
-									sx={{ width: 60, height: 60 }}
-								/>
-								<Box>
-									<Typography
-										variant='subtitle1'
-										fontWeight='bold'
-										sx={{ cursor: 'pointer' }}
-									>
-										{row.originalName}
-									</Typography>
-									<Typography variant='body2' color='text.secondary'>
-										{row.name}
-									</Typography>
-									<Typography variant='body2'>Year: {row.year}</Typography>
-									<Typography variant='body2'>
-										Duration: {formatDuration(row.minutes)}
-									</Typography>
-									<Box className={styles.platforms}>
-										{row.platforms.map(
-											(p) =>
-												PLATFORMS[p] && (
-													<PlatformIcon key={p} {...PLATFORMS[p]} />
-												)
-										)}
-									</Box>
-									<Box className={styles.rating}>
-										<StarIcon fontSize='small' />
-										<span>{row.rating.toFixed(1)}</span>
-									</Box>
-								</Box>
-							</CardContent>
-						</Card>
-					))}
-				<TablePagination
-					rowsPerPageOptions={[{ label: 'All', value: -1 }, 5, 10, 25]}
-					component='div'
-					count={rows.length}
-					rowsPerPage={rowsPerPage}
-					page={page}
-					onPageChange={changePage}
-					onRowsPerPageChange={changeRowsPerPage}
-				/>
-			</Box>
-		)
-	}
-
 	return (
-		<Paper sx={{ width: '100%', overflow: 'hidden' }} elevation={3}>
-			<TableContainer sx={{ maxHeight: '80vh' }}>
-				<Table stickyHeader aria-label='sticky table'>
-					<TableHead>
-						<TableRow>
-							{columns.map((column) => (
-								<TableCell
-									key={column.id}
-									align={column.align}
-									style={{ minWidth: column.minWidth }}
-									sortDirection={orderBy === column.id ? order : false}
+		<>
+			{isMobile ? (
+				<Box>
+					{rows
+						.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+						.map((row) => (
+							<Card
+								key={row.id}
+								sx={{ mb: 2 }}
+								onClick={() => openMovieModal(row)}
+							>
+								<CardContent
+									sx={{ display: 'flex', alignItems: 'center', gap: 2 }}
 								>
-									{column.sortable ? (
-										<TableSortLabel
-											active={orderBy === column.id}
-											direction={orderBy === column.id ? order : 'asc'}
-											onClick={() => sortCol(column.id as keyof Movie)}
+									<Avatar
+										variant='square'
+										src={row.image}
+										alt={row.originalName}
+										sx={{ width: 64, height: 80 }}
+									/>
+									<Box
+										sx={{
+											display: 'flex',
+											flexDirection: 'column',
+											gap: 0.8,
+											flexGrow: 1,
+										}}
+									>
+										<Typography
+											variant='subtitle1'
+											fontWeight='bold'
+											sx={{ cursor: 'pointer' }}
 										>
-											{column.label}
-										</TableSortLabel>
-									) : (
-										column.label
-									)}
-								</TableCell>
-							))}
-						</TableRow>
-					</TableHead>
-					<TableBody>
-						{sortRows(
-							rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage),
-							orderBy as keyof Movie,
-							order
-						).map((row) => {
-							return (
-								<TableRow hover role='checkbox' tabIndex={-1} key={row.id}>
-									<TableCell>
-										<Avatar
-											alt='Remy Sharp'
-											src={row.image}
-											sx={{ width: 50, height: 50 }}
-											variant='square'
-										/>
-									</TableCell>
-									<TableCell align='left'>
-										<Box className={styles.movieName}>
-											<strong onClick={() => openMovieModal(row)}>
-												{row.originalName}
-											</strong>
-											<Typography
-												variant='subtitle1'
-												fontStyle='italic'
-												fontSize='0.9rem'
-												color='text.secondary'
-												sx={{ cursor: 'pointer' }}
-											>
-												{row.name}
-											</Typography>
-										</Box>
-									</TableCell>
-									<TableCell align='right'>{row.year}</TableCell>
-									<TableCell align='right'>
-										{formatDuration(row.minutes)}
-									</TableCell>
-
-									<TableCell>
-										<Box className={styles.platforms}>
+											{row.originalName} - {row.year}
+										</Typography>
+										<Typography variant='body2' color='text.secondary'>
+											{row.name}
+										</Typography>
+										<Typography variant='body2'>
+											{formatDuration(row.minutes)}
+										</Typography>
+										<Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
 											{row.platforms.map(
-												(platform) =>
-													PLATFORMS[platform] && (
-														<PlatformIcon
-															key={platform}
-															{...PLATFORMS[platform]}
-														/>
+												(p) =>
+													PLATFORMS[p] && (
+														<PlatformIcon key={p} {...PLATFORMS[p]} />
 													)
 											)}
 										</Box>
-									</TableCell>
-									<TableCell>
-										<Box className={styles.rating}>
-											<StarIcon />
-											<span>{row.rating.toFixed(1)}</span>
+										<Box
+											sx={{
+												display: 'flex',
+												alignItems: 'center',
+												color: '#FFD700',
+											}}
+										>
+											<StarIcon fontSize='small' />
+											<Typography
+												sx={{ fontSize: '0.9rem', fontWeight: 'bold' }}
+											>
+												{row.rating.toFixed(1)}
+											</Typography>
 										</Box>
-									</TableCell>
-									<TableCell align='right'>
-										<Box className={styles.popularity}>
-											<WhatshotIcon />
-											<span>{row.popularity.toFixed(2)}</span>
-										</Box>
-
-										<Box className={styles.voteCount}>
-											{row.vote_count} votes
-										</Box>
-									</TableCell>
-									<TableCell align='right'>{row.genres.join(', ')}</TableCell>
+									</Box>
+								</CardContent>
+							</Card>
+						))}
+					<TablePagination
+						rowsPerPageOptions={[{ label: 'All', value: -1 }, 5, 10, 25]}
+						component='div'
+						count={rows.length}
+						rowsPerPage={rowsPerPage}
+						page={page}
+						onPageChange={changePage}
+						onRowsPerPageChange={changeRowsPerPage}
+					/>
+				</Box>
+			) : (
+				<Paper sx={{ width: '100%', overflow: 'hidden' }} elevation={3}>
+					<TableContainer sx={{ maxHeight: '80vh' }}>
+						<Table stickyHeader aria-label='sticky table'>
+							<TableHead>
+								<TableRow>
+									{COLUMNS.map((column) => (
+										<TableCell
+											key={column.id}
+											align={column.align}
+											style={{ minWidth: column.minWidth }}
+											sortDirection={orderBy === column.id ? order : false}
+										>
+											{column.sortable ? (
+												<TableSortLabel
+													active={orderBy === column.id}
+													direction={orderBy === column.id ? order : 'asc'}
+													onClick={() => sortCol(column.id as keyof Movie)}
+												>
+													{column.label}
+												</TableSortLabel>
+											) : (
+												column.label
+											)}
+										</TableCell>
+									))}
 								</TableRow>
-							)
-						})}
-					</TableBody>
-				</Table>
-			</TableContainer>
-			<TablePagination
-				rowsPerPageOptions={[{ label: 'All', value: -1 }, 5, 10, 25]}
-				component='div'
-				count={rows.length}
-				rowsPerPage={rowsPerPage}
-				page={page}
-				onPageChange={changePage}
-				onRowsPerPageChange={changeRowsPerPage}
-			/>
-		</Paper>
+							</TableHead>
+							<TableBody>
+								{sortRows(
+									rows.slice(
+										page * rowsPerPage,
+										page * rowsPerPage + rowsPerPage
+									),
+									orderBy as keyof Movie,
+									order
+								).map((row) => {
+									return (
+										<TableRow
+											sx={{ cursor: 'pointer' }}
+											hover
+											role='checkbox'
+											tabIndex={-1}
+											key={row.id}
+											onClick={() => openMovieModal(row)}
+										>
+											<TableCell>
+												<Avatar
+													alt={row.originalName}
+													src={row.image}
+													sx={{ width: 40, height: 50 }}
+													variant='square'
+												/>
+											</TableCell>
+											<TableCell align='left'>
+												<Box sx={{ display: 'flex', flexDirection: 'column' }}>
+													<Typography variant='subtitle1' fontWeight='bold'>
+														{row.originalName}
+													</Typography>
+													<Typography
+														sx={{ cursor: 'pointer' }}
+														variant='subtitle1'
+														fontStyle='italic'
+														fontSize='0.9rem'
+														color='text.secondary'
+													>
+														{row.name}
+													</Typography>
+												</Box>
+											</TableCell>
+											<TableCell align='right'>{row.year}</TableCell>
+											<TableCell align='right'>
+												{formatDuration(row.minutes)}
+											</TableCell>
+
+											<TableCell>
+												<Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+													{row.platforms.map(
+														(platform) =>
+															PLATFORMS[platform] && (
+																<PlatformIcon
+																	key={platform}
+																	{...PLATFORMS[platform]}
+																/>
+															)
+													)}
+												</Box>
+											</TableCell>
+											<TableCell>
+												<Box
+													sx={{
+														display: 'flex',
+														alignItems: 'center',
+														color: '#FFD700',
+													}}
+												>
+													<StarIcon />
+													<Typography
+														sx={{ fontSize: '0.9rem', fontWeight: 'bold' }}
+													>
+														{row.rating.toFixed(1)}
+													</Typography>
+												</Box>
+											</TableCell>
+											<TableCell align='right'>
+												<Box
+													sx={{
+														display: 'flex',
+														alignItems: 'center',
+														justifyContent: 'flex-end',
+														color: '#00BFFF',
+													}}
+												>
+													<WhatshotIcon />
+													<Typography
+														sx={{ fontSize: '0.9rem', fontWeight: 'bold' }}
+													>
+														{row.popularity.toFixed(2)}
+													</Typography>
+												</Box>
+												<Typography
+													variant='body2'
+													color='text.secondary'
+													fontSize='0.9em'
+												>
+													{row.vote_count} votes
+												</Typography>
+											</TableCell>
+											<TableCell align='right'>
+												{row.genres.join(', ')}
+											</TableCell>
+										</TableRow>
+									)
+								})}
+							</TableBody>
+						</Table>
+					</TableContainer>
+					<TablePagination
+						rowsPerPageOptions={[{ label: 'All', value: -1 }, 5, 10, 25]}
+						component='div'
+						count={rows.length}
+						rowsPerPage={rowsPerPage}
+						page={page}
+						onPageChange={changePage}
+						onRowsPerPageChange={changeRowsPerPage}
+					/>
+				</Paper>
+			)}
+		</>
 	)
 }
 export default WatchlistTable

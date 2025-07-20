@@ -1,31 +1,34 @@
 import React, { useState } from 'react'
+
 import Box from '@mui/material/Box'
+import Button from '@mui/material/Button'
+import ButtonGroup from '@mui/material/ButtonGroup'
+import DeleteIcon from '@mui/icons-material/Delete'
+import Divider from '@mui/material/Divider'
+import FilterAltIcon from '@mui/icons-material/FilterAlt'
 import FormControl from '@mui/material/FormControl'
 import MenuItem from '@mui/material/MenuItem'
 import Select, { SelectChangeEvent } from '@mui/material/Select'
 import Slider from '@mui/material/Slider'
 import Typography from '@mui/material/Typography'
-import Divider from '@mui/material/Divider'
-import Button from '@mui/material/Button'
-import ButtonGroup from '@mui/material/ButtonGroup'
-import DeleteIcon from '@mui/icons-material/Delete'
-import FilterAltIcon from '@mui/icons-material/FilterAlt'
 
 import { Filter } from '@utils/types'
+import { GENRE_SELECT_OPTIONS, PLATFORM_SELECT_OPTIONS } from '@utils/constants'
+
 type Props = {
 	submitFilters: (filters: Filter) => void
 	removeFilters: () => void
 }
 
 const FilterDrawer = ({ submitFilters, removeFilters }: Props) => {
-	const currentDate = new Date()
-	const currentYear = currentDate.getFullYear()
-
 	const [genre, setGenre] = useState('')
-	const [rating, setRating] = useState<number>(0.0)
-	const [runtime, setRuntime] = useState<number[]>([0, 300])
 	const [platform, setPlatform] = useState('')
 	const [popularity, setPopularity] = useState<number>(0)
+	const [rating, setRating] = useState<number>(0.0)
+	const [runtime, setRuntime] = useState<number[]>([0, 300])
+
+	const currentDate = new Date()
+	const currentYear = currentDate.getFullYear()
 	const [year, setYear] = useState<number[]>([1920, currentYear])
 
 	const changeGenre = (event: SelectChangeEvent) => {
@@ -47,15 +50,6 @@ const FilterDrawer = ({ submitFilters, removeFilters }: Props) => {
 		setYear(newValue)
 	}
 
-	const clearFilters = () => {
-		removeFilters()
-		setGenre('')
-		setPlatform('')
-		setPopularity(0)
-		setRating(0.0)
-		setRuntime([0, 300])
-		setYear([1920, currentYear])
-	}
 	const applyFilters = () => {
 		const filters: Filter = {}
 		if (genre) filters.genre = genre
@@ -65,6 +59,15 @@ const FilterDrawer = ({ submitFilters, removeFilters }: Props) => {
 		if (runtime[0] > 0 || runtime[1] < 300) filters.runtime = runtime
 		if (year[0] > 1920 || year[1] < currentYear) filters.year = year
 		submitFilters(filters)
+	}
+	const clearFilters = () => {
+		removeFilters()
+		setGenre('')
+		setPlatform('')
+		setPopularity(0)
+		setRating(0.0)
+		setRuntime([0, 300])
+		setYear([1920, currentYear])
 	}
 
 	return (
@@ -84,12 +87,12 @@ const FilterDrawer = ({ submitFilters, removeFilters }: Props) => {
 				</Typography>
 				<Slider
 					sx={{ ml: 1 }}
-					value={year}
-					onChange={changeYear}
 					aria-labelledby='year-slider'
-					valueLabelDisplay='auto'
+					value={year}
 					min={1920}
 					max={currentYear}
+					valueLabelDisplay='auto'
+					onChange={changeYear}
 				/>
 			</Box>
 
@@ -99,12 +102,12 @@ const FilterDrawer = ({ submitFilters, removeFilters }: Props) => {
 				</Typography>
 				<Slider
 					sx={{ ml: 1 }}
-					value={runtime}
-					onChange={changeRuntime}
 					aria-labelledby='runtime-slider'
-					valueLabelDisplay='auto'
+					value={runtime}
 					min={0}
 					max={300}
+					valueLabelDisplay='auto'
+					onChange={changeRuntime}
 				/>
 			</Box>
 
@@ -112,15 +115,7 @@ const FilterDrawer = ({ submitFilters, removeFilters }: Props) => {
 				<Typography gutterBottom>Platform</Typography>
 				<FormControl fullWidth>
 					<Select value={platform} onChange={changePlatform} displayEmpty>
-						{[
-							{ value: 'All Platforms', label: 'Tüm Platformlar' },
-							{ value: 'Amazon Prime Video', label: 'Amazon Prime Video' },
-							{ value: 'Disney Plus', label: 'Disney Plus' },
-							{ value: 'MUBI', label: 'MUBI' },
-							{ value: 'Netflix', label: 'Netflix' },
-							{ value: 'TOD TV', label: 'TOD TV' },
-							{ value: 'TV+', label: 'TV+' },
-						].map((platform) => (
+						{PLATFORM_SELECT_OPTIONS.map((platform) => (
 							<MenuItem key={platform.value} value={platform.value}>
 								{platform.label}
 							</MenuItem>
@@ -165,26 +160,7 @@ const FilterDrawer = ({ submitFilters, removeFilters }: Props) => {
 				<Typography gutterBottom>Genre</Typography>
 				<FormControl fullWidth>
 					<Select value={genre} onChange={changeGenre} displayEmpty>
-						{[
-							'',
-							'Aile',
-							'Aksiyon',
-							'Animasyon',
-							'Bilim-Kurgu',
-							'Dram',
-							'Fantastik',
-							'Gerilim',
-							'Gizem',
-							'Komedi',
-							'Korku',
-							'Macera',
-							'Müzik',
-							'Romantik',
-							'Savaş',
-							'Suç',
-							'Tarih',
-							'Vahşi Batı',
-						].map((genre) => (
+						{GENRE_SELECT_OPTIONS.map((genre) => (
 							<MenuItem key={genre} value={genre}>
 								{genre}
 							</MenuItem>

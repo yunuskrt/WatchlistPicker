@@ -1,35 +1,31 @@
 'use client'
-
 import React, { useState, useRef } from 'react'
-import { Movie, WatchlistData } from '@utils/types'
-import WatchlistView from '@views/watchlist_view'
-import { get, set } from 'idb-keyval'
-import UsernameView from '@views/username_view'
-import LoadingView from '@views/loading_view'
-import { isStale } from '@utils/helpers'
-import Snackbar, { SnackbarCloseReason } from '@mui/material/Snackbar'
-import Alert from '@mui/material/Alert'
 
-interface TableProps {
-	movies: Movie[]
-	username: string
-	lastUpdated: string
-	loading: boolean
-	status: boolean
-}
-interface ProgressProps {
-	type?: string
-	message: string
-	value: number
-	image: string | null
-}
-interface AlertProps {
-	show: boolean
-	type: 'success' | 'error' | 'info' | 'warning'
-	message: string
-}
+import Alert from '@mui/material/Alert'
+import Box from '@mui/material/Box'
+import Snackbar, { SnackbarCloseReason } from '@mui/material/Snackbar'
+
+import LoadingView from '@views/loading_view'
+import UsernameView from '@views/username_view'
+import WatchlistView from '@views/watchlist_view'
+
+import { STORE_KEY } from '@utils/constants'
+import { isStale } from '@utils/helpers'
+import { AlertProps, ProgressProps, TableProps } from '@utils/interfaces'
+import { Movie, WatchlistData } from '@utils/types'
+import { get, set } from 'idb-keyval'
 
 const Home = () => {
+	const [alert, setAlert] = useState<AlertProps>({
+		show: false,
+		type: 'info',
+		message: '',
+	})
+	const [progress, setProgress] = useState<ProgressProps>({
+		message: 'Processing...',
+		value: 0,
+		image: null,
+	})
 	const [tableData, setTableData] = useState<TableProps>({
 		movies: [],
 		username: '',
@@ -37,28 +33,8 @@ const Home = () => {
 		loading: false,
 		status: false,
 	})
-	const [progress, setProgress] = useState<ProgressProps>({
-		message: 'Processing...',
-		value: 0,
-		image: null,
-	})
-	const [alert, setAlert] = useState<AlertProps>({
-		show: false,
-		type: 'info',
-		message: '',
-	})
 	const eventSourceRef = useRef<EventSource | null>(null)
 
-	const showAlert = (
-		type: 'success' | 'error' | 'info' | 'warning',
-		message: string
-	) => {
-		setAlert({
-			show: true,
-			type,
-			message,
-		})
-	}
 	const closeAlert = (
 		event?: React.SyntheticEvent | Event,
 		reason?: SnackbarCloseReason
@@ -69,10 +45,19 @@ const Home = () => {
 
 		setAlert({ ...alert, show: false })
 	}
+	const showAlert = (
+		type: 'success' | 'error' | 'info' | 'warning',
+		message: string
+	) => {
+		setAlert({
+			show: true,
+			type,
+			message,
+		})
+	}
 	const searchUserWatchlist = async (username: string) => {
 		setTableData({ ...tableData, loading: true })
 
-		const STORE_KEY = 'watchlistData'
 		const now = new Date()
 		const cache: WatchlistData = (await get<WatchlistData>(STORE_KEY)) ?? {}
 
@@ -88,10 +73,7 @@ const Home = () => {
 				loading: false,
 				status: movies.length > 0,
 			})
-			showAlert(
-				'warning',
-				`${username} kullanıcısının watchlisti önbellekten yüklendi!`
-			)
+			showAlert('warning', `${username}'s watchlist loaded from cache!`)
 		} else {
 			const es = new EventSource(`api/v1/progress/${username}`)
 			eventSourceRef.current = es
@@ -116,7 +98,7 @@ const Home = () => {
 							es.close()
 							showAlert(
 								'success',
-								`${username} kullanıcısının watchlisti başarıyla yüklendi!`
+								`${username}'s watchlist loaded successfully!`
 							)
 							cache[username] = {
 								movies,
@@ -146,7 +128,7 @@ const Home = () => {
 			}
 			es.onerror = () => {
 				es.close()
-				showAlert('error', 'Kullanıcı bulunamadı veya bir hata oluştu.')
+				showAlert('error', 'User not found or an error occurred.')
 				setTableData({
 					...tableData,
 					loading: false,
@@ -156,7 +138,7 @@ const Home = () => {
 		}
 	}
 	return (
-		<div>
+		<Box>
 			<Snackbar
 				open={alert.show}
 				autoHideDuration={3000}
@@ -187,8 +169,7 @@ const Home = () => {
 			) : (
 				<UsernameView submitUsername={searchUserWatchlist} />
 			)}
-		</div>
+		</Box>
 	)
 }
-
 export default Home

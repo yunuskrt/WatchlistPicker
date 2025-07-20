@@ -1,27 +1,42 @@
 import React, { useState } from 'react'
+
 import Box from '@mui/material/Box'
+import HistoryIcon from '@mui/icons-material/History'
 import Modal from '@mui/material/Modal'
+import MovieCard from '@components/movie_card'
+import PersonIcon from '@mui/icons-material/Person'
+import SearchAppBar from '@components/search_appbar'
 import Typography from '@mui/material/Typography'
-import MovieCard from '@/components/movie_card'
-import SearchAppBar from '@/components/search_appbar'
 import WatchlistTable from '@components/watchlist_table'
 import WatchlistToolbar from '@components/watchlist_toolbar'
+
 import { Filter, Movie } from '@utils/types'
 import { pickRandom } from '@utils/helpers'
-import HistoryIcon from '@mui/icons-material/History'
-import PersonIcon from '@mui/icons-material/Person'
+import { MovieModalProps } from '@utils/interfaces'
 
-interface MovieModal {
-	open: boolean
-	movie: Movie | null
-}
 type Props = { movies: Movie[]; username: string; lastUpdated: string }
+
 const WatchlistView = ({ movies, username, lastUpdated }: Props) => {
-	const [tableData, setTableData] = useState<Movie[]>(movies)
-	const [movieModal, setMovieModal] = useState<MovieModal>({
+	const [movieModal, setMovieModal] = useState<MovieModalProps>({
 		open: false,
 		movie: null,
 	})
+	const [tableData, setTableData] = useState<Movie[]>(movies)
+
+	const closeMovieModal = () => {
+		setMovieModal({ open: false, movie: null })
+	}
+	const openMovieModal = (movie: Movie) => {
+		setMovieModal({ open: true, movie })
+	}
+	const pickRandomMovie = () => {
+		const randomMovie = pickRandom(tableData)
+		if (randomMovie) {
+			openMovieModal(randomMovie)
+		} else {
+			alert('No movies available to pick from.')
+		}
+	}
 	const removeFilters = () => {
 		setTableData(movies)
 	}
@@ -74,20 +89,6 @@ const WatchlistView = ({ movies, username, lastUpdated }: Props) => {
 			})
 		)
 	}
-	const openMovieModal = (movie: Movie) => {
-		setMovieModal({ open: true, movie })
-	}
-	const closeMovieModal = () => {
-		setMovieModal({ open: false, movie: null })
-	}
-	const pickRandomMovie = () => {
-		const randomMovie = pickRandom(tableData)
-		if (randomMovie) {
-			openMovieModal(randomMovie)
-		} else {
-			alert('No movies available to pick from.')
-		}
-	}
 	return (
 		<Box sx={{ gap: 2, display: 'flex', flexDirection: 'column' }}>
 			<SearchAppBar
@@ -103,34 +104,41 @@ const WatchlistView = ({ movies, username, lastUpdated }: Props) => {
 				<Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1 }}>
 					<PersonIcon />
 					<Typography variant='body2' color='text.secondary'>
-						<strong>{username}</strong> watchlist'i
+						<Typography component='span' sx={{ fontWeight: 'bold' }}>
+							{username}
+						</Typography>
+						{"'s watchlist"}
 					</Typography>
 				</Box>
 
 				<Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1 }}>
 					<HistoryIcon />
 					<Typography variant='body2' color='text.secondary'>
-						Son Güncelleme Tarihi:{' '}
-						<strong>
-							{new Date(lastUpdated).toLocaleString('tr-TR', {
-								day: '2-digit',
-								month: 'long',
-								year: 'numeric',
-								hour: '2-digit',
-								minute: '2-digit',
-								hour12: false,
-								timeZone: 'Europe/Istanbul',
-							})}
-						</strong>
+						Last updated:
+					</Typography>
+					<Typography
+						sx={{ fontWeight: 'bold' }}
+						variant='body2'
+						color='text.secondary'
+					>
+						{new Date(lastUpdated).toLocaleString('en-US', {
+							day: '2-digit',
+							month: 'long',
+							year: 'numeric',
+							hour: '2-digit',
+							minute: '2-digit',
+							hour12: false,
+							timeZone: 'Europe/Istanbul',
+						})}
 					</Typography>
 				</Box>
 			</Box>
 			<WatchlistTable rows={tableData} openMovieModal={openMovieModal} />
 			<Modal
-				open={movieModal.open}
-				onClose={closeMovieModal} // This is the key prop for closing the modal
 				aria-labelledby='movie-details-modal-title'
 				aria-describedby='movie-details-modal-description'
+				open={movieModal.open}
+				onClose={closeMovieModal}
 			>
 				<Box
 					sx={{
@@ -152,5 +160,4 @@ const WatchlistView = ({ movies, username, lastUpdated }: Props) => {
 		</Box>
 	)
 }
-
 export default WatchlistView

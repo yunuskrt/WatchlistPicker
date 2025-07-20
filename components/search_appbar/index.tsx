@@ -1,27 +1,28 @@
 import React, { useState, useContext } from 'react'
-import { ThemeContext } from '@context/ThemeContext'
 
-import { styled, alpha } from '@mui/material/styles'
 import AppBar from '@mui/material/AppBar'
 import Box from '@mui/material/Box'
-import Toolbar from '@mui/material/Toolbar'
+import DarkModeIcon from '@mui/icons-material/DarkMode'
+import Drawer from '@mui/material/Drawer'
+import FilterDrawer from '@components/filter_drawer'
 import IconButton from '@mui/material/IconButton'
 import InputBase from '@mui/material/InputBase'
+import LightModeIcon from '@mui/icons-material/LightMode'
 import MenuIcon from '@mui/icons-material/Menu'
 import SearchIcon from '@mui/icons-material/Search'
-import LightModeIcon from '@mui/icons-material/LightMode'
-import DarkModeIcon from '@mui/icons-material/DarkMode'
-import FilterDrawer from '@components/filter_drawer'
-import Drawer from '@mui/material/Drawer'
+import Toolbar from '@mui/material/Toolbar'
 
+import { ThemeContext } from '@context/ThemeContext'
+import { styled, alpha } from '@mui/material/styles'
 import { Filter } from '@utils/types'
+
 type Props = {
 	submitFilters: (filters: Filter) => void
 	removeFilters: () => void
 	searchMovies: (query: string) => void
 }
 
-const Search = styled('div')(({ theme }) => ({
+const Search = styled(Box)(({ theme }) => ({
 	position: 'relative',
 	borderRadius: theme.shape.borderRadius,
 	backgroundColor: alpha(theme.palette.common.white, 0.15),
@@ -37,7 +38,7 @@ const Search = styled('div')(({ theme }) => ({
 	},
 }))
 
-const SearchIconWrapper = styled('div')(({ theme }) => ({
+const SearchIconWrapper = styled(Box)(({ theme }) => ({
 	padding: theme.spacing(0, 2),
 	height: '100%',
 	position: 'absolute',
@@ -70,10 +71,10 @@ const SearchAppBar = ({
 	const setMode = themeContext?.setMode ?? (() => {})
 
 	const [filterDrawerOpen, setFilterDrawerOpen] = useState(false)
+
 	const toggleDrawer = (newOpen: boolean) => () => {
 		setFilterDrawerOpen(newOpen)
 	}
-
 	return (
 		<Box sx={{ flexGrow: 1 }}>
 			<AppBar position='static'>

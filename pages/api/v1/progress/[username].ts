@@ -152,7 +152,6 @@ export default async function handler(
 		for (const [index, link] of watchlistMovieLinks.entries()) {
 			// check if client is still connected every iteration
 			if (!clientConnected) break
-			console.log(`${index + 1}/${total} - Processing link: ${link}`)
 
 			const tmdbId = await getTmdbIdFromLetterboxdUrl(
 				`${process.env.BASE_URL}${link}`
@@ -161,7 +160,6 @@ export default async function handler(
 				const movieDetails = await getMovieDetails(tmdbId)
 				if (movieDetails) {
 					watchlistData.push(movieDetails)
-					console.log(`Found movie: ${movieDetails.originalName}`)
 					// send progress update with movie details
 					res.write(
 						`data: ${JSON.stringify({
@@ -184,7 +182,7 @@ export default async function handler(
 			res.write(
 				`data: ${JSON.stringify({
 					type: 'done',
-					message: 'İşlem tamamlandı.',
+					message: 'Transaction completed.',
 					progress: 100,
 					movies: watchlistData,
 				})}\n\n`
@@ -198,7 +196,7 @@ export default async function handler(
 			res.write(
 				`data: ${JSON.stringify({
 					type: 'error',
-					message: 'Serverda bir hata oluştu.',
+					message: 'An error occured on the server.',
 					progress: 100,
 				})}\n\n`
 			)
