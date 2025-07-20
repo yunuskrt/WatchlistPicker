@@ -1,4 +1,5 @@
-import React, { useState } from 'react'
+import React, { useState, useContext } from 'react'
+import { ThemeContext } from '@context/ThemeContext'
 import { Container, Box, Typography, TextField, Button } from '@mui/material'
 import HomeAppBar from '@/components/home_appbar'
 
@@ -6,9 +7,13 @@ type Props = {
 	submitUsername: (username: string) => void
 }
 
-const LETTERBOXD_ICON_URL = '/assets/ltbd_light.svg'
+const LETTERBOXD_LIGHT_ICON = '/assets/ltbd_light.svg'
+const LETTERBOXD_DARK_ICON = '/assets/ltbd_dark.svg'
 
 const UsernameView = ({ submitUsername }: Props) => {
+	const themeContext = useContext(ThemeContext)
+	const mode = themeContext?.mode ?? false
+
 	const [username, setUsername] = useState('')
 
 	const changeUsername = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -39,7 +44,7 @@ const UsernameView = ({ submitUsername }: Props) => {
 				>
 					<Box
 						component='img'
-						src={LETTERBOXD_ICON_URL}
+						src={mode ? LETTERBOXD_DARK_ICON : LETTERBOXD_LIGHT_ICON}
 						alt='Letterboxd Logo'
 						sx={{
 							m: 2,
@@ -57,6 +62,7 @@ const UsernameView = ({ submitUsername }: Props) => {
 
 					<Box component='form' onSubmit={handleSubmit} sx={{ width: '100%' }}>
 						<TextField
+							autoComplete='off'
 							id='letterboxd-username'
 							label='Letterboxd Username'
 							variant='outlined'
