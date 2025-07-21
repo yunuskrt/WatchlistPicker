@@ -7,14 +7,14 @@ type Data = Movie[] | ErrorResponse
 
 async function getWatchlistMovieLinks(username: string): Promise<string[]> {
 	try {
-		const MAX_PAGES = parseInt(process.env.MAX_PAGES || '10')
+		const MAX_PAGES = parseInt(process.env.NEXT_PUBLIC_MAX_PAGES || '10')
 		const pageLinks: string[] = []
 		let page = 1
 		let check = true
 		while (page <= MAX_PAGES && check) {
 			console.log(`Processing page ${page}...`)
 			try {
-				const url = `${process.env.BASE_URL}/${username}/watchlist/page/${page}`
+				const url = `${process.env.NEXT_PUBLIC_BASE_URL}/${username}/watchlist/page/${page}`
 				const response = await axios.get(url)
 				const $ = cheerio.load(response.data)
 
@@ -63,13 +63,19 @@ async function getTmdbIdFromLetterboxdUrl(
 async function getMovieDetails(movieId: string): Promise<Movie | null> {
 	try {
 		const [detailsRes, providersRes] = await Promise.all([
-			axios.get(`${process.env.TMDB_API_BASE_URL}/movie/${movieId}`, {
-				params: { api_key: process.env.TMDB_API_KEY, language: 'tr-TR' },
-			}),
 			axios.get(
-				`${process.env.TMDB_API_BASE_URL}/movie/${movieId}/watch/providers`,
+				`${process.env.NEXT_PUBLIC_TMDB_API_BASE_URL}/movie/${movieId}`,
 				{
-					params: { api_key: process.env.TMDB_API_KEY },
+					params: {
+						api_key: process.env.NEXT_PUBLIC_TMDB_API_KEY,
+						language: 'tr-TR',
+					},
+				}
+			),
+			axios.get(
+				`${process.env.NEXT_PUBLIC_TMDB_API_BASE_URL}/movie/${movieId}/watch/providers`,
+				{
+					params: { api_key: process.env.NEXT_PUBLIC_TMDB_API_KEY },
 				}
 			),
 		])
@@ -90,7 +96,7 @@ async function getMovieDetails(movieId: string): Promise<Movie | null> {
 			vote_count: detailsRes.data.vote_count,
 			genres: detailsRes.data.genres.map((g: any) => g.name),
 			image: detailsRes.data.poster_path
-				? `${process.env.IMAGE_BASE_URL}${detailsRes.data.poster_path}`
+				? `${process.env.NEXT_PUBLIC_IMAGE_BASE_URL}${detailsRes.data.poster_path}`
 				: '',
 		}
 
@@ -154,7 +160,7 @@ export default async function handler(
 			if (!clientConnected) break
 
 			const tmdbId = await getTmdbIdFromLetterboxdUrl(
-				`${process.env.BASE_URL}${link}`
+				`${process.env.NEXT_PUBLIC_BASE_URL}${link}`
 			)
 			if (tmdbId) {
 				const movieDetails = await getMovieDetails(tmdbId)
