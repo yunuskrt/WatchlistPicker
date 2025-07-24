@@ -129,12 +129,14 @@ export default async function handler(
 				.json({ error: 'No movie links found in the watchlist.' })
 		}
 		// set headers for SSE
+		// ❶ allow CORS
+		res.setHeader('Access-Control-Allow-Origin', '*')
 		res.setHeader('Content-Type', 'text/event-stream; charset=utf-8')
 		res.setHeader('Cache-Control', 'no-cache, no-transform')
 		res.setHeader('Connection', 'keep-alive')
-		// ❶ turn off buffering Gzip compression
-		res.setHeader('Content-Encoding', 'identity') // ('none' da olur)
-		// ❷ turn off buffering
+		// ❷ turn off buffering Gzip compression
+		res.setHeader('Content-Encoding', 'identity')
+		// ❸ turn off buffering
 		res.setHeader('X-Accel-Buffering', 'no')
 		res.flushHeaders()
 		// flag to check if client is still connected
